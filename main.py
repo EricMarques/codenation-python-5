@@ -35,13 +35,8 @@ records = [
         'end': 1564627800, 'start': 1564626000}
 ]
 
-def order_results(results):
-    sources = sorted(results, key = lambda result: result['total'], reverse = True)
-    return sources
-
 def calculate_total_price(total_time):
     return (total_time * 0.09) + 0.36
-
 
 def calculate_total_time(start_time, final_time):
     return floor(abs(final_time - start_time).seconds/60)
@@ -73,23 +68,30 @@ def calculate_total(start_time, final_time):
     return total_price
 
 def classify_by_phone_number(records):
-    list_records = []
+    results = []
 
     for record in records:
         exists = 0
         price = calculate_total(record['start'], record['end'])
-        for list_record in list_records:
-            if list_record['source'] == record['source']:
+        for result in results:
+
+            if result['source'] == record['source']:
                 exists = 1
-                previous_source = list_record['total']
+                previous_source = result['total']
                 
                 new_price = round((previous_source + price), 2)
-                list_record['total'] = new_price
+                result['total'] = new_price
         
         if exists == 0:
-            list_records.append({
-                'source': record['source'],
-                'total': round(price, 2)
-            })
+            price = calculate_total(record['start'], record['end'])
+            price_rounded = round(price, 2)
+            results.append(
+                {'source': record['source'], 'total': price_rounded})
+        
+    final_sources = sorted(results,
+                           key = lambda result: result['total'],
+                           reverse = True)
+
+    return final_sources
 
 classify_by_phone_number(records)
